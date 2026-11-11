@@ -17,9 +17,11 @@ from pathlib import Path
 from PIL import Image
 
 from providers_jimeng import MotionCancelledError
-from runtime_paths import RESOURCE_ROOT, quiet_subprocess_kwargs
+from runtime_paths import DATA_ROOT, RESOURCE_ROOT, quiet_subprocess_kwargs
 
-ENGINE_ROOT = RESOURCE_ROOT / 'third_party' / 'realesrgan'
+_LOCAL_ENGINE = DATA_ROOT / 'runtime' / 'realesrgan'
+ENGINE_ROOT = (_LOCAL_ENGINE if (_LOCAL_ENGINE / 'realesrgan-ncnn-vulkan.exe').is_file()
+               else RESOURCE_ROOT / 'third_party' / 'realesrgan')
 MODES = {
     'ai-light': {'model': 'realesr-animevideov3', 'scale': 3, 'label': '动画轻量 · 较快'},
     'ai-general': {'model': 'realesrgan-x4plus', 'scale': 4, 'label': '通用画面 / 三维 · 较慢'},

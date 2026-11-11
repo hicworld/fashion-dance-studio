@@ -2,6 +2,10 @@
 
 一个在 Windows 上运行的 AI 视频工作台。它把素材整理、云端模型调用、任务恢复和本地剪辑放在同一个界面里。可直接用浏览器运行源码，也可打包成桌面应用。
 
+## 下载 Windows 桌面版
+
+前往 [GitHub Releases](https://github.com/hicworld/fashion-dance-studio/releases) 下载 Windows x64 ZIP，完整解压后双击「穿搭舞蹈工作室.exe」。如果电脑上没有 FFmpeg 和 FFprobe，首次启动会询问是否从上游下载并校验组件；AI 超分可通过包内脚本另外安装。详见包内「启动说明.txt」。
+
 ## 功能
 
 - **穿搭动作**：合成穿搭图或导入成图，选择舞蹈片段、背景和动作模型。
@@ -44,7 +48,7 @@ py -3.11 -m venv .venv
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build_desktop.ps1
 ```
 
-生成的程序位于 `dist/穿搭舞蹈工作室/`。源码模式下超分组件可选，没下载时可选择普通缩放。组件来源、许可和本地校验方式见 [第三方组件说明](docs/third-party.md)。
+生成的程序位于 `dist/穿搭舞蹈工作室/`。以上方式用于自己的电脑，包含本机的 FFmpeg 和超分组件。用于分发的便携包使用 `-PortableRelease`，让用户从上游获取媒体组件。详见 [第三方组件与发布构建](docs/third-party.md)。
 
 ## 本地测试
 

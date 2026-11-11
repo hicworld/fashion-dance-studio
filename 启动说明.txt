@@ -1,0 +1,21 @@
+穿搭舞蹈工作室 · Windows x64
+
+1. 将整个 ZIP 解压到一个文件夹，保留 exe 与 _internal 的相对位置。
+2. 双击「穿搭舞蹈工作室.exe」。已可用的 FFmpeg 和 FFprobe 会直接复用。
+   若首次启动提示安装媒体组件，确认后从 Gyan 官方发布下载并校验约 115 MB 的 ZIP。
+   媒体组件保存在本机数据目录，后续启动无需重新下载。
+3. 在工作台的「API设置」填写要用的云端服务密钥。本地媒体功能可不填云端密钥。
+
+适用 Windows 10/11 x64。内嵌界面使用系统 Edge WebView2；如果不可用，软件尝试使用系统浏览器。
+若系统提示缺少 Visual C++ 运行库，请安装微软官方 x64 Redistributable，再重开软件。
+WebView2: https://developer.microsoft.com/microsoft-edge/webview2/
+Microsoft VC++ x64: https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
+
+首次下载失败时可自行从 FFmpeg 下载页获取 Windows 构建，解压后将 bin 加入 PATH，再重开工作室：
+https://ffmpeg.org/download.html
+
+AI 超分为可选。先关闭工作室，双击「安装AI超分.cmd」，按提示从上游下载并校验。需要 Vulkan 显卡驱动。
+没有超分组件时，短片处理可选择「普通缩放」。
+
+配置、任务与素材默认保存在用户目录下的 FashionDanceStudio。迁移旧版本时请保留该目录。
+更多使用说明见 docs/workflows.md；依赖说明与通知见 docs/third-party.md 和 licenses/。

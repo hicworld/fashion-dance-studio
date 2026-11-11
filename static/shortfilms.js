@@ -122,6 +122,11 @@
   }
   function render(p,force=false){
     project=p; $('sf-empty').hidden=true; $('sf-workspace').hidden=false;
+    const upscale=$('sf-upscale');
+    for(const option of upscale.options){
+      option.disabled=option.value!=='none'&&!p.superresolution?.modes?.[option.value]?.available;
+    }
+    if(upscale.selectedOptions[0]?.disabled)upscale.value='none';
     $('sf-project-title').textContent=p.title+' · '+p.shot_count+' 镜'; $('sf-stage').textContent=p.stage||'';
     $('sf-connection').textContent=p.missing.length?'需配置方舟 API Key':'Seedance 2.5 · 已配置';
     $('sf-stats').innerHTML=[['原分镜',p.shot_count+' 镜'],['成片时长',seconds(p.duration_seconds)+' 秒'],['首轮生成量',seconds(p.generation_seconds)+' 秒'],['已完成',p.ready_count+' / '+p.shot_count]].map(([a,b])=>`<div class="panel"><span>${a}</span><strong>${b}</strong></div>`).join('');

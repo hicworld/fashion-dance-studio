@@ -9,6 +9,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 from pathlib import Path
+from queue import Empty, Queue
 import shutil
 import sys
 import threading
@@ -101,6 +102,100 @@ def inform(message: str, error: bool = False) -> None:
         print(message, file=sys.stderr if error else sys.stdout)
 
 
+def component_setup(title: str, detail: str, install) -> bool:
+    """Ask once, then keep the desktop responsive while an upstream download runs."""
+    import tkinter as tk
+    from tkinter import messagebox, ttk
+
+    root = tk.Tk()
+    root.withdraw()
+    try:
+        if not messagebox.askokcancel(title, detail, parent=root):
+            return False
+        root.title(title)
+        root.resizable(False, False)
+        panel = ttk.Frame(root, padding=24)
+        panel.pack(fill="both", expand=True)
+        ttk.Label(panel, text="正在下载并校验组件，请稍候。").pack(anchor="w")
+        progress = ttk.Progressbar(panel, length=320, mode="indeterminate")
+        progress.pack(pady=(12, 0))
+        progress.start(12)
+        root.protocol("WM_DELETE_WINDOW", lambda: None)
+        result = Queue(maxsize=1)
+        success = False
+
+        def worker():
+            try:
+                install()
+                result.put(None)
+            except Exception as error:
+                result.put(type(error).__name__)
+
+        def poll():
+            nonlocal success
+            try:
+                error_type = result.get_nowait()
+            except Empty:
+                root.after(120, poll)
+                return
+            success = error_type is None
+            if not success:
+                LOGGER.warning("Media component setup failed: %s", error_type)
+                messagebox.showerror(title, "组件未能安装。请检查网络与磁盘空间，再重新尝试。也可按包内启动说明手动安装。", parent=root)
+            root.quit()
+
+        root.deiconify()
+        threading.Thread(target=worker, name="studio-component-setup", daemon=True).start()
+        root.after(120, poll)
+        root.mainloop()
+        return success
+    finally:
+        root.destroy()
+
+
+def media_tools_available() -> bool:
+    if shutil.which("ffmpeg") and shutil.which("ffprobe"):
+        return True
+    from media_runtime import ffmpeg_ready
+
+    installed = DATA_ROOT / "runtime" / "ffmpeg"
+    if not ffmpeg_ready(installed):
+        return False
+    os.environ["PATH"] = str(installed) + os.pathsep + os.environ.get("PATH", "")
+    return bool(shutil.which("ffmpeg") and shutil.which("ffprobe"))
+
+
+def setup_desktop_media() -> bool:
+    from media_runtime import install_ffmpeg
+
+    if not component_setup("安装 FFmpeg 媒体组件",
+                           "首次使用需要 FFmpeg 和 FFprobe。软件将从 Gyan 的 GitHub 发布下载并校验约 115 MB 的组件，"
+                           "保存到本机数据目录。已有 FFmpeg 的电脑可将其 bin 目录加入 PATH 后重开软件。",
+                           lambda: install_ffmpeg(DATA_ROOT / "runtime" / "ffmpeg")):
+        return False
+    return media_tools_available()
+
+
+def setup_superresolution() -> bool:
+    from prepare_realesrgan import prepare
+
+    def install():
+        target = DATA_ROOT / "runtime" / "realesrgan"
+        if target.resolve() != target or (target / "SOURCE.json").is_symlink():
+            raise ValueError("Unexpected Real-ESRGAN cache location")
+        target.mkdir(parents=True, exist_ok=True)
+        manifest = RESOURCE_ROOT / "third_party" / "realesrgan" / "SOURCE.json"
+        (target / "SOURCE.json").write_bytes(manifest.read_bytes())
+        prepare(directory=target)
+
+    success = component_setup("安装可选 AI 超分",
+                              "将从 Real-ESRGAN 官方 GitHub 发布下载并校验模型与引擎。安装后可打开工作室使用本地 AI 超分。",
+                              install)
+    if success:
+        inform("AI 超分组件已安装。请重新打开工作室。")
+    return success
+
+
 class LocalServer:
     def __init__(self) -> None:
         import app as workflow
@@ -133,7 +228,7 @@ class LocalServer:
         LOGGER.info("Local service stopped; saved task records were retained")
 
 
-def smoke_test(server: LocalServer) -> int:
+def smoke_test(server: LocalServer, *, require_media: bool = False) -> int:
     checks = []
     for endpoint in ("/", "/api/settings", "/api/preferences", "/api/jobs", "/api/shortfilms"):
         try:
@@ -152,7 +247,8 @@ def smoke_test(server: LocalServer) -> int:
                     import video_superresolution
                     sr = video_superresolution.availability()
                     check['superresolution_models_bundled'] = all(m['available'] for m in sr['modes'].values())
-                    check['ok'] = check['ok'] and check['superresolution_models_bundled']
+                    if require_media:
+                        check['ok'] = check['ok'] and check['superresolution_models_bundled']
                 checks.append(check)
         except urllib.error.HTTPError as error:
             checks.append({"endpoint": endpoint, "status": error.code, "ok": False})
@@ -165,7 +261,8 @@ def smoke_test(server: LocalServer) -> int:
         "ffprobe_found": bool(shutil.which("ffprobe")),
         "cloud_requests_submitted": 0,
     }
-    report["ok"] = report["ok"] and report["ffmpeg_found"] and report["ffprobe_found"]
+    if require_media:
+        report["ok"] = report["ok"] and report["ffmpeg_found"] and report["ffprobe_found"]
     serialized = json.dumps(report, ensure_ascii=True)
     (DATA_ROOT / "logs" / "desktop-smoke.json").write_text(serialized + "\n", encoding="utf-8")
     print(serialized, flush=True)
@@ -224,7 +321,9 @@ def desktop_mode(server: LocalServer) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=APP_TITLE)
     parser.add_argument("--smoke-test", action="store_true", help="Run read-only local endpoint checks, without GUI or cloud generation")
+    parser.add_argument("--require-media", action="store_true", help="With --smoke-test, require both FFmpeg and AI upscaling")
     parser.add_argument("--browser", action="store_true", help="Open the system browser instead of the embedded window")
+    parser.add_argument("--install-superresolution", action="store_true", help="Install optional AI upscaling from upstream")
     args = parser.parse_args(argv)
     prepare_stdio()
     instance_lock = SingleInstanceLock(DATA_ROOT)
@@ -235,9 +334,16 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         initialize()
         prepare_logging()
+        if args.install_superresolution:
+            return 0 if setup_superresolution() else 1
+        if getattr(sys, "frozen", False) and not media_tools_available() and not args.smoke_test:
+            if not setup_desktop_media():
+                return 1
         server = LocalServer()
         server.start()
         if args.smoke_test:
+            if args.require_media:
+                return smoke_test(server, require_media=True)
             return smoke_test(server)
         server.start_recovery()
         if args.browser:
