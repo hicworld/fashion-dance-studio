@@ -1,0 +1,17 @@
+{
+  "_说明": [
+    "本文件是不可运行的配置说明，不包含真实工作流ID或捏造的节点编号。",
+    "请在Liblib目标工作流页面点击“查看API参数”，复制完整官方JSON请求体并完全覆盖此示例。",
+    "不要把API密钥、AccessKey、SecretKey、Signature或请求URL放入JSON。密钥只配置在.env。",
+    "试衣模板：将人物图片URL完整替换成 {{MODEL_IMAGE_URL}}，服装图片URL完整替换成 {{GARMENT_IMAGE_URL}}。",
+    "动作模板：将试衣人物图片URL完整替换成 {{MODEL_IMAGE_URL}}，参考视频URL完整替换成 {{REFERENCE_VIDEO_URL}}。",
+    "占位符放在原请求已有的JSON字符串值中，保留平台给出的真实节点编号、class_type及其他参数。",
+    "分别另存liblib-tryon.json和liblib-motion.json，并配置LIBLIB_TRYON_CONFIG与LIBLIB_MOTION_CONFIG。",
+    "若工作流还要求遮罩、深度图等额外素材，需要先补齐相应工作流；此适配器只自动上传上述三类输入。",
+    "模型、节点、工作流可用性、费用与原生输出尺寸，以目标工作流及实际样片为准。"
+  ],
+  "templateUuid": "",
+  "generateParams": {
+    "workflowUuid": ""
+  }
+}

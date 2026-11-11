@@ -1,0 +1,22 @@
+<section class="panel sfe-panel" id="sf-editor" aria-labelledby="sfe-title" hidden>
+  <div class="sfe-heading"><div><p class="eyebrow">ARRANGE YOUR STORY</p><h2 id="sfe-title">素材与剪辑</h2><p>把完成的片段拖到下方，按自己的顺序拼接。原片保留，剪辑只改变当前时间线。</p></div><span id="sfe-save-state" class="sfe-save-state" role="status">读取时间线…</span></div>
+  <p class="form-error" id="sfe-error" role="alert" hidden></p>
+  <div class="sfe-conflict" id="sfe-conflict" hidden><p>已保存的时间线有了新版本，自动保存已暂停。当前草稿仍在本页。</p><div class="sfe-actions"><button class="secondary-button" type="button" id="sfe-load-saved">加载已保存版本</button><button class="secondary-button" type="button" id="sfe-keep-draft">用当前草稿替换已保存版本</button></div></div>
+  <div class="sfe-section-heading"><h3>1 · 片段素材</h3><span id="sfe-material-count">等待片段</span></div>
+  <p class="sf-detail-note">拖动片段封面加入时间线，也可点“加入”。同一片段可以多次使用；未处理完成的原片会显示为待处理。</p>
+  <div class="sfe-materials" id="sfe-materials" aria-label="可拖拽的片段素材"></div>
+  <div class="sfe-section-heading sfe-timeline-heading"><h3>2 · 排列时间线</h3><strong id="sfe-total">0 段 · 00:00.000</strong></div>
+  <div class="sfe-timeline-toolbar"><span>拖动卡片上的手柄调整顺序</span><button class="text-link" type="button" id="sfe-add-ready">按分镜顺序加入全部已完成片段</button><button class="text-link" type="button" id="sfe-save">立即保存草稿</button></div>
+  <div class="sfe-timeline-viewport" id="sfe-timeline-viewport" aria-label="剪辑时间线拖放区"><div class="sfe-timeline" id="sfe-timeline" aria-label="剪辑片段顺序"><div class="sfe-timeline-empty">将上方片段拖到这里<br><small>可以重复加入、裁短、静音，再生成连续预览</small></div></div></div>
+  <p class="sfe-keyboard-note">键盘：选中卡片后，左右键切换，Alt＋左右键移动，Delete 移除。也可使用下面的操作按钮。</p>
+  <div class="sfe-inspector" id="sfe-inspector" hidden>
+    <div class="sfe-inspector-heading"><h3 id="sfe-item-title">选中的片段</h3><div class="sfe-actions"><button class="secondary-button" type="button" id="sfe-move-left">向左移动</button><button class="secondary-button" type="button" id="sfe-move-right">向右移动</button><button class="secondary-button" type="button" id="sfe-duplicate">重复此段</button><button class="text-link" type="button" id="sfe-remove">移除此段</button></div></div>
+    <div class="sfe-trim-fields"><label class="sf-field">取用入点（片段秒）<input type="number" id="sfe-in" min="0" step="0.001"></label><label class="sf-field">取用出点（片段秒）<input type="number" id="sfe-out" min="0" step="0.001"></label><label class="sf-check"><input type="checkbox" id="sfe-muted">静音此段</label><button class="secondary-button" type="button" id="sfe-apply">应用取用范围与声音</button><button class="text-link" type="button" id="sfe-reset-fields">撤回本次修改</button></div>
+    <p class="sf-detail-note" id="sfe-trim-note">入出点相对于当前成片片段，按项目帧率对齐，至少保留一帧；不会修改素材文件。</p>
+  </div>
+  <div class="sfe-section-heading"><h3>3 · 预览与导出</h3><span id="sfe-playback-mode">顺序预览 · 无需等待渲染</span></div>
+  <div class="sfe-player-grid"><div class="sfe-sequence-box"><div class="sfe-preview-stage"><video id="sfe-sequence-video" playsinline preload="metadata" aria-label="当前剪辑顺序预览"></video><div id="sfe-preview-empty" class="sfe-preview-empty">加入片段，开始讲你的故事。</div></div><div class="sfe-transport"><button class="secondary-button" type="button" id="sfe-play">播放时间线</button><button class="text-link" type="button" id="sfe-restart">回到开头</button><output id="sfe-cursor" for="sfe-seek">00:00.000 / 00:00.000</output></div><input id="sfe-seek" class="sfe-seek" type="range" min="0" max="0" step="0.001" value="0" aria-label="时间线播放位置"><p class="sf-detail-note">顺序预览逐段读取素材，切镜时可能短暂加载。生成“连续预览”后可用单个视频检查连续播放与声音。</p></div>
+    <div class="sfe-render-box"><div class="sfe-actions"><button class="primary-button" type="button" id="sfe-render">生成连续预览 · 本地</button><button class="secondary-button" type="button" id="sfe-pause-render">暂停预览生成</button></div><p id="sfe-render-stage" class="sf-detail-note" role="status">草稿会自动保存在本机。生成连续预览使用 FFmpeg，不调用生成 API。</p><p class="sfe-render-note" id="sfe-render-note"></p><video id="sfe-render-video" controls playsinline preload="metadata" hidden aria-label="已生成的连续剪辑预览"></video><a class="text-link" id="sfe-download" download hidden><svg><use href="#i-download"/></svg>下载连续预览 MP4</a><p class="sf-detail-note">视频生成、超分期间也能编辑和预览。连续预览按提交时的草稿和素材版本处理；之后修改草稿或素材，旧预览会标为需要更新。</p></div>
+  </div>
+  <p class="sfe-announcement visually-hidden" id="sfe-announcement" role="status" aria-live="polite"></p>
+</section>

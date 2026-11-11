@@ -1,0 +1,34 @@
+<section class="panel st-panel" id="sf-soundtrack" hidden aria-labelledby="st-title">
+  <div class="panel-heading"><div><p class="eyebrow">SOUND FOR THE WHOLE FILM</p><h2 id="st-title">全片声音制作</h2><p id="st-stage">按脚本制作对白、音效、环境声与背景音乐。</p></div><span class="tiny-label">4 TRACKS</span></div>
+  <p>角色使用固定音色；环境声和音乐可以跨镜头延续。使用分轨配音时，视频可选择不生成同步声音，避免重复制作对白。生成声音与生成视频分开计费。本地导入、混音及合成不调用生成 API。</p>
+  <p class="form-error" id="st-error" role="alert" hidden></p>
+  <button type="button" class="primary-button" id="st-prepare">从声音脚本建立分轨计划 · 本地</button>
+  <div id="st-content" hidden>
+    <details class="st-notes"><summary>脚本识别与使用说明</summary><div id="st-warnings"></div><p>对白落点需试听并检查口型；超过预留时长不会直接截断。音效可裁切或循环。分轨合成使用新混音替换原试剪音轨，原试剪文件保留。</p></details>
+    <h3>1 · 固定角色声音</h3><div id="st-voices" class="st-voices"></div><div class="st-actions"><button type="button" class="secondary-button" id="st-save-voices">保存角色音色</button><button type="button" class="text-link" id="st-load-voices">读取我的 MiniMax 音色列表</button><span id="st-provider-note" class="sf-detail-note"></span></div>
+    <h3>2 · 检查声音时间表</h3><p class="sf-detail-note">下面始终显示完整脚本的时间。导出最近试剪时，会按试剪镜头顺序重新排列对应声音。</p><div id="st-timeline" class="st-timeline" aria-label="四轨声音时间轴"></div>
+    <div class="st-actions"><label class="sf-field">查看轨道<select id="st-filter"><option value="all">全部声音</option><option value="dialogue">对白</option><option value="sfx">音效</option><option value="ambience">环境声</option><option value="music">背景音乐</option></select></label><button type="button" class="text-link" id="st-select-missing">选择未生成</button><button type="button" class="text-link" id="st-clear">清空选择</button><label class="sf-field">新增轨道<select id="st-new-track"><option value="dialogue">对白</option><option value="sfx" selected>音效</option><option value="ambience">环境声</option><option value="music">背景音乐</option></select></label><button type="button" class="secondary-button" id="st-add">新增声音</button></div>
+    <div class="st-table-wrap"><table class="st-table"><thead><tr><th>选择</th><th>声音</th><th>脚本时间</th><th>素材状态</th><th>操作</th></tr></thead><tbody id="st-cues"></tbody></table></div>
+    <div class="st-player" id="st-player-box" hidden><p id="st-player-name"></p><audio id="st-player" controls preload="metadata"></audio></div>
+    <div class="st-editor" id="st-editor" hidden>
+      <h3 id="st-editor-title">编辑声音</h3><div class="st-edit-grid">
+        <label class="sf-field">名称<input id="st-cue-label" maxlength="160"></label><label class="sf-field">角色<input id="st-cue-role" maxlength="40"></label>
+        <label class="sf-field">开始（全片秒）<input id="st-cue-start" type="number" min="0" step="0.01"></label><label class="sf-field">结束（全片秒）<input id="st-cue-end" type="number" min="0" step="0.01"></label>
+        <label class="sf-field st-wide">台词 / 音效描述<textarea id="st-cue-text" rows="3" maxlength="2000"></textarea></label>
+        <label class="sf-field">情绪<select id="st-cue-emotion"><option value="auto">自动</option><option value="happy">高兴</option><option value="surprised">惊讶</option><option value="calm">平静</option><option value="sad">悲伤</option><option value="angry">愤怒</option><option value="fearful">害怕</option><option value="disgusted">厌恶</option><option value="whisper">低语（Speech 2.6）</option><option value="fluent">生动（Speech 2.6）</option></select></label>
+        <label class="sf-field">音效生成长度（秒）<input id="st-cue-generation" type="number" min="0.5" max="30" step="0.1"></label>
+        <label class="sf-field">本条音量（dB）<input id="st-cue-gain" type="number" min="-60" max="12" step="1"></label><label class="sf-field">素材取用起点（秒）<input id="st-cue-offset" type="number" min="0" max="6000" step="0.01"></label>
+        <label class="sf-field">淡入（秒）<input id="st-cue-fade-in" type="number" min="0" step="0.1"></label><label class="sf-field">淡出（秒，0为硬切）<input id="st-cue-fade-out" type="number" min="0" step="0.1"></label>
+        <label class="sf-field">复用原条目编号<input id="st-cue-reuse" maxlength="5" placeholder="例如 F001；留空为独立声音"></label><div class="st-actions"><label class="sf-check"><input id="st-cue-enabled" type="checkbox">启用本条</label><label class="sf-check"><input id="st-cue-loop" type="checkbox">循环素材</label></div>
+      </div><p class="sf-detail-note" id="st-cue-info"></p><div class="st-actions"><button type="button" class="secondary-button" id="st-save-cue">保存本条声音</button><label class="secondary-button sf-import-label" for="st-cue-file">为本条导入音频<input id="st-cue-file" type="file" accept=".wav,.mp3,.m4a,.aac,.flac,.ogg" class="visually-hidden"></label><button type="button" class="text-link" id="st-recover">继续处理已下载音频 · 不收费</button></div>
+    </div>
+    <h3>3 · 按需生成对白与音效</h3><p id="st-batch-summary"></p><div class="st-actions"><label class="sf-field">本批对白字符上限<input id="st-character-limit" type="number" min="0" max="10000" value="300"></label><label class="sf-field">本批音效生成秒数上限<input id="st-sfx-limit" type="number" min="0" max="1500" value="30" step="0.1"></label></div>
+    <p class="sf-detail-note">对白使用 MiniMax Speech；音效和环境声使用 ElevenLabs。上限限制请求量，不是人民币账单限额；计费以平台账单为准。复用声音不重新生成。</p>
+    <label class="sf-check"><input id="st-regenerate" type="checkbox">我已核对历史记录，允许为选中的已有声音另付费重做。</label><label class="sf-check st-confirm"><input id="st-confirm" type="checkbox">我已检查内容、音色和本批限额，确认把所选文本发送给对应音频服务并产生费用。</label>
+    <div class="st-actions"><button type="button" class="primary-button" id="st-generate">确认生成所选声音</button><button type="button" class="secondary-button" id="st-pause">暂停声音处理</button></div>
+    <h3>4 · 统一配乐和混音</h3><p class="sf-detail-note">背景音乐导入本地文件。脚本里的停乐、音乐回归用不同时间段控制；音乐的BPM递进需要相应编曲素材，不会自动改编歌曲。</p>
+    <label class="secondary-button sf-import-label" for="st-music-file">导入背景音乐 · 用于全部配乐段<input id="st-music-file" type="file" accept=".wav,.mp3,.m4a,.aac,.flac,.ogg" class="visually-hidden"></label>
+    <div class="st-gains" id="st-gains"></div><label class="sf-check"><input id="st-duck" type="checkbox" checked>对白响起时自动压低背景音乐</label><div class="st-actions"><button type="button" class="secondary-button" id="st-save-mix">保存混音设置</button><label class="sf-field">输出时间轴<select id="st-scope"><option value="full">完整脚本 · 可先制作声音</option><option value="roughcut">最近试剪 · 按镜头重新排列</option></select></label><button type="button" class="primary-button" id="st-render">本地混音并合成视频</button></div>
+    <div id="st-output" class="st-output" hidden><p id="st-output-note"></p><div id="st-downloads" class="st-actions"></div><audio id="st-master" controls preload="metadata" aria-label="完整混音试听"></audio><video id="st-final" controls playsinline preload="metadata" hidden aria-label="分轨混音合成后的影片"></video></div>
+  </div>
+</section>

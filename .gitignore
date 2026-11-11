@@ -1,0 +1,40 @@
+# Local configuration and credentials
+.env
+.env.*
+!/.env.example
+*.pem
+*.p12
+*.pfx
+/liblib-motion.json
+/liblib-tryon*.json
+
+# Local app data, working files and generated media
+/jobs/
+/shortfilms/
+/research/
+/logs/
+/webview/
+/data/
+/outputs/
+/artifacts/
+/assets/*
+!/assets/base_model.png
+ui_preferences.json
+*.log
+*.zip
+*.bundle
+
+# Local dependencies and desktop builds
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+/build/
+/dist*/
+*.exe
+*.dll
+/third_party/realesrgan/models/
+
+.DS_Store
+Thumbs.db
